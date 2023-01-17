@@ -1,5 +1,5 @@
-from Media import Media
+from media import Media
 
 class Film(Media):
-    def __init__(self, n, di, s, u, du, c):
-        super().__init__(n, di, s, u, du, c)
+    def __init__(self, id, n, di, s, u, du, c):
+        super().__init__(id, n, di, s, u, du, c)

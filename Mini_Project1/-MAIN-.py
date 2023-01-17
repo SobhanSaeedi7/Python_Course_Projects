@@ -1,31 +1,32 @@
-from Media import Media
-from Film import Film
-from Series import Series
-from Documentary import Documentary
-from Clip import Clip
-from Actor import Actor
+from media import Media
+from film import Film
+from series import Series
+from documentary import Documentary
+from clip import Clip
+from actor import Actor
 
 MEDIAS = []
 def download():
-    database = open("Mini_Project1\Medias.txt", "r")
+    database = open("txt_media.txt", "r")
 
     for line in database:
         details = line.split(",")
-        if len(details) == 8:
-            obj = Media(int(details[0]),details[1],details[2],float(details[3]),details[4],details[5],[details[6],details[7],details[8]])
-        elif len(details) == 9:
-            obj = Series(int(details[0]),details[1],details[2],float(details[3]),details[4],details[5],[details[6],details[7],details[8]],details[9])
+        if details[5] == "none":
+            obj = Series(details[0], details[1], details[2], float(details[3]), details[4], details[5], [details[6],details[7],details[8]], int(details[9]))
+            MEDIAS.append(obj)    
+        else:
+            obj = Media(details[0], details[1], details[2], float(details[3]), details[4], details[5], [details[6],details[7],details[8]])
+            MEDIAS.append(obj)
 
-        MEDIAS.append(obj)
     database.close()
 
 def upload():
-    data = open("Mini_Project1\Medias.txt", "w")
+    data = open("txt_media.txt", "w")
     for media in MEDIAS:
-        if len(media) == 6:
-            data.write(str(media.ID)+","+str(media.name)+","+str(media.director)+","+str(media.IMBDscore)+","+str(media.url)+","+str(media.duration)+","+str(media.casts))
-        if len(media) == 6:
-            data.write(str(media.ID)+","+str(media.name)+","+str(media.director)+","+str(media.IMBDscore)+","+str(media.url)+","+str(media.duration)+","+str(media.casts)+","+str(media.episods))
+        if media.duration == "none":
+            data.write(str(media.ID)+","+str(media.name)+","+str(media.director)+","+str(media.IMBDscore)+","+str(media.url)+","+str(media.duration)+","+str(media.casts[0])+","+str(media.casts[1])+","+str(media.casts[2])+","+str(media.episods)+","+"\n")
+        else:
+            data.write(str(media.ID)+","+str(media.name)+","+str(media.director)+","+str(media.IMBDscore)+","+str(media.url)+","+str(media.duration)+","+str(media.casts[0])+","+str(media.casts[1])+","+str(media.casts[2])+","+"\n")
     data.close()
 
 def search():
@@ -59,7 +60,8 @@ def show_menu():
     print("4-search🔎")
     print("5-show list📜")
     print("6-download📥")
-    print("7-exit🏃")
+    print("7-add a new actor👤")
+    print("8-exit🏃")
 
 #_____________________________________________________________________________________________________________________________________________________________________
 
@@ -69,57 +71,95 @@ while True:
     choose = input("Enter number of your choice : ")
 
     if choose == "1":
-        new_media = Media.add()
-        MEDIAS.append(new_media)
-        print("Added successful✅")
+        kind = input("Do you want to add a serie'Y' or no'N'?")
+        if kind == "Y" :
+            new_media = Series.add()
+            MEDIAS.append(new_media)
+            print("Added successful✅")
+        elif kind == "N":
+            new_media = Media.add()
+            MEDIAS.append(new_media)
+            print("Added successful✅")
 
     elif choose == "2":
         user_input = input("Enter a name or ID to search : ")
         for media in MEDIAS:
-            if media.ID == int(user_input) or media.name == user_input:
-                media.edit()
-                print("Edited successful✅")
+            if media.ID == user_input or media.name == user_input:
+                if media.duration == "none":
+                    media.edit_serie()
+                    print("Edited successful✅")
+                else:
+                    media.edit_media()
+                    print("Edited successful✅")
         else:
             print("Not found!")
 
     elif choose == "3":
         user_input = input("Enter a name or ID to search : ")
         for media in MEDIAS:
-            if media.ID == int(user_input) or media.name == user_input:
+            if media.ID == user_input or media.name == user_input:
                 okey = input("Are you sure that you want to remove this media??Y/N ; ")
                 if okey == "Y":
                     MEDIAS.remove(media)
                     print("Removed successfully✅")
+                    break
                 elif okey == "N":
-                    print()
+                    print("Didn`t remove🔁")
+                    break
                 else :
                     print("Just enter Y(yes) or N(no)")
+
         else:
             print("Not found!")
 
     elif choose == "4":
-        Media.search()
+        kind = input("Do you want to search with name and ID 'N' or with duration 'D' : ")
+        if kind == "N":
+            user_input = input("Enter a name or ID to search : ")
+            for media in MEDIAS:
+                if media.ID == user_input or media.name == user_input:
+                    if media.duration == "none":
+                        media.show_serie()
+                    else:
+                        media.show_info()
+        elif kind == "D":
+            hour1 = input("Enter hour of first time(smaller one) : ")
+            min1 = input("Enter minute of first time(smaller one) : ")
+            hour2 = input("Enter hour of second time(bigger one) : ")
+            min2 = input("Enter minute of second time(bigger one) : ")
+            for media in MEDIAS:
+                if media.duration != "none":
+                    media.search_duration(hour1, min1, hour2, min2)
+            else: 
+                print("not found!!")
+        else:
+            print("Just enter 'N' to search with name and ID or 'D' to search with time")
 
     elif choose == "5":
         for obj in MEDIAS:
-            obj.show_list()
-            print()
+            if obj.duration == "none":
+                obj.show_serie_from_list()
+                print()
+            else:
+                obj.show_media_from_list()
+                print()                
 
     elif choose == "6":
         user_input = input("Enter a name or ID to search : ")
         for media in MEDIAS:
-            if media.ID == int(user_input) or media.name == user_input:
+            if media.ID == user_input or media.name == user_input:
                 media.download()
-                print("Downloaded successful✅")
+                print("Download started📥")
 
         else:
             print("Not found!")
+
     elif choose == "7":
         Actor.add()
 
     elif choose == "8":
         upload()
-        exit()
+        exit(0)
 
     else:
         print("Please just enter number of your choose😕")

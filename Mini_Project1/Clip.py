@@ -1,4 +1,4 @@
-from Media import Media
+from media import Media
 
 class Clip(Media):
     def __init__(self, id, n, di, s, u, du, c):
